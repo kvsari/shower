@@ -1,0 +1,27 @@
+[package]
+name = "shower"
+version = "0.0.0"
+authors = ["Stephan Luther <kvsari@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["wgpu/vulkan"]
+
+[dependencies]
+wgpu = "0.2.3"
+log = "0.4.6"
+glsl-to-spirv = "0.1"
+cgmath = "0.17"
+shaderc = "0.6.0"
+enum-map = "0.6.0"
+#winit = "0.19.1"
+derive-getters = "0.0.8"
+num-traits = "0.2.8"
+objekt = "0.1.2"
+
+[dev-dependencies]
+dotenv = "0.14.0"
+env_logger = "0.6.1"
+
