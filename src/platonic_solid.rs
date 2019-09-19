@@ -2,7 +2,7 @@
 
 use cgmath::{Point3, Vector3, BaseFloat};
 
-use crate::polyhedron::{Polyhedron, VtFc, Seed, SeedSolid};
+//use crate::polyhedron::{Polyhedron, VtFc, Seed, SeedSolid};
 use crate::scene;
 
 mod tetrahedron;
@@ -68,6 +68,7 @@ platonic!(Octahedron, octahedron::octahedron);
 platonic!(Dodecahedron, dodecahedron::dodecahedron);
 platonic!(Icosahedron, icosahedron::icosahedron);
 
+/*
 macro_rules! platonic2 {
     ($name:ident, $function:expr, $seed_solid:expr) => {
         #[derive(Debug, Copy, Clone)]
@@ -102,3 +103,4 @@ platonic2!(Cube2, cube::cube2, SeedSolid::Cube);
 platonic2!(Octahedron2, octahedron::octahedron2, SeedSolid::Octahedron);
 platonic2!(Dodecahedron2, dodecahedron::dodecahedron2, SeedSolid::Dodecahedron);
 platonic2!(Icosahedron2, icosahedron::icosahedron2, SeedSolid::Icosahedron);
+*/

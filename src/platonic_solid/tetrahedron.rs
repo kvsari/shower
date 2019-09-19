@@ -3,7 +3,7 @@ use std::ops::Neg;
 
 use cgmath::Point3;
 
-use crate::polyhedron::{Polyhedron, VtFc};
+//use crate::polyhedron::{Polyhedron, VtFc};
 use crate::geop::triangle_normal;
 use super::Vertex;
 
@@ -73,6 +73,7 @@ pub (in crate::platonic_solid) fn tetrahedron(
     (vertices, index)
 }
 
+/*
 pub (in crate::platonic_solid) fn tetrahedron2(len: f64) -> Polyhedron<VtFc> {
     let cc = Point3::new(0.0, 0.0, 0.0);
 
@@ -99,4 +100,4 @@ pub (in crate::platonic_solid) fn tetrahedron2(len: f64) -> Polyhedron<VtFc> {
 
     Polyhedron::new(cc, radius, &vertices, &[&t1, &t2, &t3, &t4])
 }
-
+*/

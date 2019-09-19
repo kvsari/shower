@@ -24,4 +24,3 @@ objekt = "0.1.2"
 [dev-dependencies]
 dotenv = "0.14.0"
 env_logger = "0.6.1"
-

@@ -2,10 +2,10 @@
 
 use log::info;
 
-use polyorb::platonic_solid;
-use polyorb::light::Light;
-use polyorb::scene::Scene;
-use polyorb::{shader, presentation};
+use shower::platonic_solid;
+use shower::light::Light;
+use shower::scene::Scene;
+use shower::{shader, presentation};
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
@@ -33,9 +33,9 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     
     //let solid = platonic_solid::Tetrahedron::new(1.0, [0.0, 1.0, 0.0]);
-    //let solid = platonic_solid::Cube::new(1.0, [0.0, 1.0, 0.0]);
+    let solid = platonic_solid::Cube::new(1.0, [0.0, 1.0, 0.0]);
     //let solid = platonic_solid::Octahedron::new(1.0, [0.0, 1.0, 0.0]);
-    let solid = platonic_solid::Dodecahedron::new(1.0, [0.0, 1.0, 0.0]);
+    //let solid = platonic_solid::Dodecahedron::new(1.0, [0.0, 1.0, 0.0]);
     //let solid = platonic_solid::Icosahedron::new(1.0, [0.0, 1.0, 0.0]);
     
     let flat_shaders = shader::load_flat_shaders()?;

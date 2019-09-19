@@ -4,7 +4,7 @@ use std::ops::Neg;
 use cgmath::Point3;
 use cgmath::prelude::*;
 
-use crate::polyhedron::{Polyhedron, VtFc};
+//use crate::polyhedron::{Polyhedron, VtFc};
 use crate::geop::{triangle_normal, golden_ratio};
 use super::Vertex;
 
@@ -198,6 +198,7 @@ pub (in crate::platonic_solid) fn dodecahedron(
     (vertexes, indexes)
 }
 
+/*
 pub (in crate::platonic_solid) fn dodecahedron2(len: f64) -> Polyhedron<VtFc> {
     let cc = Point3::new(0.0, 0.0, 0.0);
 
@@ -297,3 +298,4 @@ pub (in crate::platonic_solid) fn dodecahedron2(len: f64) -> Polyhedron<VtFc> {
         &[&p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10, &p11, &p12],
     )
 }
+*/

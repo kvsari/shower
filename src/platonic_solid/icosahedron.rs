@@ -4,7 +4,7 @@ use std::ops::Neg;
 use cgmath::Point3;
 use cgmath::prelude::*;
 
-use crate::polyhedron::{Polyhedron, VtFc};
+//use crate::polyhedron::{Polyhedron, VtFc};
 use crate::geop::{triangle_normal, golden_ratio};
 use super::Vertex;
 
@@ -190,6 +190,7 @@ pub (in crate::platonic_solid) fn icosahedron(
     (vertexes, indexes)
 }
 
+/*
 pub (in crate::platonic_solid) fn icosahedron2(len: f64) -> Polyhedron<VtFc> {
     let cc = Point3::new(0.0, 0.0, 0.0);
 
@@ -292,3 +293,4 @@ pub (in crate::platonic_solid) fn icosahedron2(len: f64) -> Polyhedron<VtFc> {
         ]
     )
 }
+*/

@@ -4,7 +4,7 @@ use std::ops::Neg;
 use cgmath::Point3;
 use cgmath::prelude::*;
 
-use crate::polyhedron::{Polyhedron, VtFc};
+//use crate::polyhedron::{Polyhedron, VtFc};
 use crate::geop::triangle_normal;
 use super::Vertex;
 
@@ -83,6 +83,7 @@ pub (in crate::platonic_solid) fn cube(
     (vertexes, indexes)
 }
 
+/*
 pub (in crate::platonic_solid) fn cube2(len: f64) -> Polyhedron<VtFc> {
     // The cube center is at (0, 0, 0) of its local space.
     let cc = Point3::new(0.0, 0.0, 0.0);
@@ -119,3 +120,4 @@ pub (in crate::platonic_solid) fn cube2(len: f64) -> Polyhedron<VtFc> {
     
     Polyhedron::new(cc, radius, &vertices, &[&top, &bottom, &right, &left, &front, &back])
 }
+*/
