@@ -10,17 +10,18 @@ edition = "2018"
 default = ["wgpu/vulkan"]
 
 [dependencies]
-wgpu = "0.2.3"
-log = "0.4.6"
-glsl-to-spirv = "0.1"
+wgpu = "0.3.0"
+log = "0.4.8"
+glsl-to-spirv = "0.1.7"
 cgmath = "0.17"
-shaderc = "0.6.0"
+shaderc = "0.6.1"
 enum-map = "0.6.0"
-#winit = "0.19.1"
+winit = "0.20.0-alpha3"
 derive-getters = "0.0.8"
 num-traits = "0.2.8"
 objekt = "0.1.2"
+raw-window-handle = "0.1.2"
 
 [dev-dependencies]
-dotenv = "0.14.0"
-env_logger = "0.6.1"
+dotenv = "0.14.1"
+env_logger = "0.6.2"

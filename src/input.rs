@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::ops::Neg;
 
-use wgpu::winit::{KeyboardInput, VirtualKeyCode, ElementState};
+use winit::event::{KeyboardInput, VirtualKeyCode, ElementState};
 use cgmath::{Vector3, Zero, Rad, Deg};
 
 pub type Camera = Vector3<f32>;

@@ -1,5 +1,5 @@
 //! Typestate that holds render pipelines, perspectives and assets.
-use std::mem;
+use std::{io, mem};
 
 use derive_getters::Getters;
 use num_traits::identities::Zero;
@@ -62,14 +62,14 @@ impl Geometry for Cached {
 pub struct Begin;
 
 pub struct Lights {
-    frag: Vec<u8>,
-    vert: Vec<u8>,
+    frag: Vec<u32>,
+    vert: Vec<u32>,
     lights: Vec<Light>,
 }
 
 pub struct Prepare<T: Geometry> {
-    frag: Vec<u8>,
-    vert: Vec<u8>,
+    frag: Vec<u32>,
+    vert: Vec<u32>,
     lights: Vec<Light>,
     geometry: T,
 }
@@ -104,8 +104,8 @@ impl Scene<Begin> {
     pub fn manual_shaders(self, vert: &[u8], frag: &[u8]) -> Scene<Lights> {
         Scene {
             state: Lights {
-                frag: frag.to_owned(),
-                vert: vert.to_owned(),
+                frag: wgpu::read_spirv(io::Cursor::new(frag)).unwrap(),
+                vert: wgpu::read_spirv(io::Cursor::new(vert)).unwrap(),
                 lights: Vec::new(),
             }
         }
@@ -156,7 +156,7 @@ impl<T: Geometry> Scene<Prepare<T>> {
         let projection_buf = device
             .create_buffer_mapped(
                 16,
-                wgpu::BufferUsageFlags::UNIFORM | wgpu::BufferUsageFlags::TRANSFER_DST,
+                wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
             )
             .fill_from_slice(p_ref);
 
@@ -166,25 +166,25 @@ impl<T: Geometry> Scene<Prepare<T>> {
         let rotation_buf = device
             .create_buffer_mapped(
                 16,
-                wgpu::BufferUsageFlags::UNIFORM | wgpu::BufferUsageFlags::TRANSFER_DST,
+                wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
             )
             .fill_from_slice(r_ref);
 
         let (vertices, index) = self.state.geometry.geometry();
         
         let vertex_buf = device
-            .create_buffer_mapped(vertices.len(), wgpu::BufferUsageFlags::VERTEX)
+            .create_buffer_mapped(vertices.len(), wgpu::BufferUsage::VERTEX)
             .fill_from_slice(&vertices);
 
         let index_buf = device
-            .create_buffer_mapped(index.len(), wgpu::BufferUsageFlags::INDEX)
+            .create_buffer_mapped(index.len(), wgpu::BufferUsage::INDEX)
             .fill_from_slice(&index);
 
-        let light_buf_size = (MAX_LIGHTS * LightRaw::sizeof()) as u32;
+        let light_buf_size = (MAX_LIGHTS * LightRaw::sizeof()) as u64;
         let light_buf_builder = device
             .create_buffer_mapped(
                 light_buf_size as usize,
-                wgpu::BufferUsageFlags::UNIFORM | wgpu::BufferUsageFlags::TRANSFER_DST,
+                wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
             );
         
         self.state.lights
@@ -199,7 +199,7 @@ impl<T: Geometry> Scene<Prepare<T>> {
         let light_count_buf = device
             .create_buffer_mapped(
                 1,
-                wgpu::BufferUsageFlags::UNIFORM | wgpu::BufferUsageFlags::TRANSFER_DST,
+                wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
             )
             .fill_from_slice(&[light_count]);
 
@@ -208,29 +208,29 @@ impl<T: Geometry> Scene<Prepare<T>> {
                 // Projection uniform buffer layout
                 wgpu::BindGroupLayoutBinding {
                     binding: 0,
-                    visibility: wgpu::ShaderStageFlags::VERTEX,
-                    ty: wgpu::BindingType::UniformBuffer,
+                    visibility: wgpu::ShaderStage::VERTEX,
+                    ty: wgpu::BindingType::UniformBuffer { dynamic: false },
                 },
                 
                 // Rotation uniform buffer layout
                 wgpu::BindGroupLayoutBinding {
                     binding: 1,
-                    visibility: wgpu::ShaderStageFlags::VERTEX,
-                    ty: wgpu::BindingType::UniformBuffer,
+                    visibility: wgpu::ShaderStage::VERTEX,
+                    ty: wgpu::BindingType::UniformBuffer { dynamic: false },
                 },
                 
                 // Lights
                 wgpu::BindGroupLayoutBinding {
                     binding: 2,
-                    visibility: wgpu::ShaderStageFlags::FRAGMENT,
-                    ty: wgpu::BindingType::UniformBuffer,
+                    visibility: wgpu::ShaderStage::FRAGMENT,
+                    ty: wgpu::BindingType::UniformBuffer { dynamic: false },
                 },
 
                 // Light Count
                 wgpu::BindGroupLayoutBinding {
                     binding: 3,
-                    visibility: wgpu::ShaderStageFlags::FRAGMENT,
-                    ty: wgpu::BindingType::UniformBuffer,
+                    visibility: wgpu::ShaderStage::FRAGMENT,
+                    ty: wgpu::BindingType::UniformBuffer { dynamic: false },
                 },
             ]}            
         );
@@ -282,57 +282,59 @@ impl<T: Geometry> Scene<Prepare<T>> {
         
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             layout: &pipeline_layout,
-            vertex_stage: wgpu::PipelineStageDescriptor {
+            vertex_stage: wgpu::ProgrammableStageDescriptor {
                 module: &m_vert,
                 entry_point: "main",
             },
-            fragment_stage: wgpu::PipelineStageDescriptor {
+            fragment_stage: Some(wgpu::ProgrammableStageDescriptor {
                 module: &m_frag,
                 entry_point: "main",
-            },
-            rasterization_state: wgpu::RasterizationStateDescriptor {
+            }),
+            rasterization_state: Some(wgpu::RasterizationStateDescriptor {
                 front_face: wgpu::FrontFace::Cw,
                 cull_mode: wgpu::CullMode::Front,
                 depth_bias: 2,
                 depth_bias_slope_scale: 2.0,
                 depth_bias_clamp: 0.0,
-            },
+            }),
             primitive_topology: wgpu::PrimitiveTopology::TriangleList,
             color_states: &[wgpu::ColorStateDescriptor {
                 format: desc.format,
-                color: wgpu::BlendDescriptor::REPLACE,
-                alpha: wgpu::BlendDescriptor::REPLACE,
-                write_mask: wgpu::ColorWriteFlags::ALL,
+                color_blend: wgpu::BlendDescriptor::REPLACE,
+                alpha_blend: wgpu::BlendDescriptor::REPLACE,
+                write_mask: wgpu::ColorWrite::ALL,
             }],
             depth_stencil_state: None,
             index_format: wgpu::IndexFormat::Uint16,
             vertex_buffers: &[wgpu::VertexBufferDescriptor {
-                stride: Vertex::sizeof() as u32,
+                stride: Vertex::sizeof() as u64,
                 step_mode: wgpu::InputStepMode::Vertex,
                 attributes: &[
                     // These are the vertexes. Location 0.
                     wgpu::VertexAttributeDescriptor { 
-                        attribute_index: 0,
                         format: wgpu::VertexFormat::Float3,
                         offset: 0,
+                        shader_location: 0,
                     },
                     
                     // Our per vertex normal. Location 1.
                     wgpu::VertexAttributeDescriptor {
-                        attribute_index: 1,
                         format: wgpu::VertexFormat::Float3,
                         offset: 4 * 3,
+                        shader_location: 1,
                     },
                     
                     // This is the colour. Location 2.
                     wgpu::VertexAttributeDescriptor { 
-                        attribute_index: 2,
                         format: wgpu::VertexFormat::Float3,
                         offset: 4 * 6,
+                        shader_location: 2,
                     },
                 ],
             }],
             sample_count: 1,
+            sample_mask: !0,
+            alpha_to_coverage_enabled: false,
         });
         
         let cmd_buf = cmd_encoder.finish();
@@ -376,7 +378,7 @@ impl Renderable for Scene<Ready> {
             let new_projection_buf = device
                 .create_buffer_mapped(
                     16,
-                    wgpu::BufferUsageFlags::UNIFORM | wgpu::BufferUsageFlags::TRANSFER_SRC,
+                    wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_SRC,
                 )
                 .fill_from_slice(p_ref);
             
@@ -391,7 +393,7 @@ impl Renderable for Scene<Ready> {
             let new_rotation_buf = device
                 .create_buffer_mapped(
                     16,
-                    wgpu::BufferUsageFlags::UNIFORM | wgpu::BufferUsageFlags::TRANSFER_SRC,
+                    wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_SRC,
                 )
                 .fill_from_slice(r_ref);
 
@@ -405,6 +407,7 @@ impl Renderable for Scene<Ready> {
             let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
                     attachment: &frame.view,
+                    resolve_target: None,
                     load_op: wgpu::LoadOp::Clear,
                     store_op: wgpu::StoreOp::Store,
                     clear_color: wgpu::Color::BLACK,
@@ -412,9 +415,9 @@ impl Renderable for Scene<Ready> {
                 depth_stencil_attachment: None,
             });
             rpass.set_pipeline(&self.state.pipeline);
-            rpass.set_bind_group(0, &self.state.bind_group);
+            rpass.set_bind_group(0, &self.state.bind_group, &[]);
             rpass.set_index_buffer(&self.state.index_buf, 0);
-            rpass.set_vertex_buffers(&[(&self.state.vertex_buf, 0)]);
+            rpass.set_vertex_buffers(0, &[(&self.state.vertex_buf, 0)]);
             rpass.draw_indexed(0..self.state.index_len as u32, 0, 0..1);
         }
 

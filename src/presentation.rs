@@ -2,7 +2,9 @@
 
 use log::{info, trace};
 use cgmath::{Vector3, Rad, Matrix4, Point3, Deg};
-use wgpu::winit;
+use winit::event_loop::{ControlFlow, EventLoop};
+use winit::event;
+use raw_window_handle::HasRawWindowHandle;
 
 use crate::input;
 
@@ -62,30 +64,32 @@ trait Presentation {
 /// Taken heavily from the examples in wgpu crate. I have no idea otherwise how to use.
 pub fn run<T>(title: &str, scene: T) -> Result<(), Box<dyn std::error::Error>>
 where T: Initializable,
-      T::Ready: Renderable,
+      T::Ready: Renderable + 'static,
 {
-    info!("Initializing the renderer.");
-    
+    info!("Setting up the window.");
+    let event_loop = EventLoop::new();
+    let window = winit::window::Window::new(&event_loop)?;    
+    window.set_title(title);
+    let hidpi_factor = window.hidpi_factor();
+    let w_size = window
+        .inner_size()
+        .to_physical(hidpi_factor);
+    let w_width = w_size.width.round() as f32;
+    let w_height = w_size.height.round() as f32;
     let instance = wgpu::Instance::new();
-    let adapter = instance.get_adapter(&wgpu::AdapterDescriptor {
+    let surface = instance.create_surface(window.raw_window_handle());
+
+    info!("Initializing the renderer.");    
+    let adapter = instance.request_adapter(&wgpu::RequestAdapterOptions {
         power_preference: wgpu::PowerPreference::LowPower,
     });
-    let mut device = adapter.create_device(&wgpu::DeviceDescriptor {
+    
+    let mut device = adapter.request_device(&wgpu::DeviceDescriptor {
         extensions: wgpu::Extensions {
             anisotropic_filtering: false,
         },
+        limits: wgpu::Limits::default(),
     });
-
-    info!("Setting up the window.");
-    let mut event_loop = winit::EventsLoop::new();
-    let window = winit::Window::new(&event_loop)?;
-    window.set_title(title);
-    let w_size = window
-        .get_inner_size()
-        .unwrap()
-        .to_physical(window.get_hidpi_factor());
-    let w_width = w_size.width.round() as f32;
-    let w_height = w_size.height.round() as f32;
 
     //                                                                       [View Dist].
     let perspective = Perspective::new(Deg(45f32), w_width / w_height, 1f32, 100f32);
@@ -97,12 +101,12 @@ where T: Initializable,
     let bindings = input::Bindings::default();
     let mut act_state: u16 = 0;
 
-    let surface = instance.create_surface(&window);
     let desc = wgpu::SwapChainDescriptor {
-        usage: wgpu::TextureUsageFlags::OUTPUT_ATTACHMENT,
+        usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
         format: wgpu::TextureFormat::Bgra8Unorm,
         width: w_width as u32,
         height: w_height as u32,
+        present_mode: wgpu::PresentMode::Vsync,
     };
     let mut swap_chain = device.create_swap_chain(&surface, &desc);
 
@@ -110,39 +114,35 @@ where T: Initializable,
     let mut show = show::Show::new(scene.init(&desc, &mut device), camera);
 
     info!("Entering event loop.");
-    let mut running = true;
-    while running {
-        event_loop.poll_events(|event| match event {
-            winit::Event::WindowEvent { event, .. } => match event {
-                winit::WindowEvent::KeyboardInput {
-                    input: winit::KeyboardInput {
-                        virtual_keycode: Some(winit::VirtualKeyCode::Escape),
-                        state: winit::ElementState::Pressed,
-                        ..
-                    },
+    event_loop.run(move |event, _, control_flow| match event {
+        event::Event::WindowEvent { event, .. } => match event {
+            event::WindowEvent::KeyboardInput {
+                input: event::KeyboardInput {
+                    virtual_keycode: Some(event::VirtualKeyCode::Escape),
+                    state: event::ElementState::Pressed,
                     ..
+                },
+                ..
+            }
+            | event::WindowEvent::CloseRequested => {
+                *control_flow = ControlFlow::Exit;
+            },
+            event::WindowEvent::KeyboardInput { input: keyboard_input, .. } => {
+                let maybie = input::handle_keyboard(
+                    &keyboard_input, &bindings, &mut act_state
+                );
+                if let Some((camera_movement, rot_x, rot_y)) = maybie {
+                    let rot = Rot::new(rot_x, rot_y, Rad(0.0));
+                    let (view, rot) = show.update(camera_movement, rot);
+                    trace!("{:?} && {:?}", view, rot);
                 }
-                | winit::WindowEvent::CloseRequested => {
-                    running = false;
-                },
-                winit::WindowEvent::KeyboardInput { input: keyboard_input, .. } => {
-                    let maybie = input::handle_keyboard(
-                        &keyboard_input, &bindings, &mut act_state
-                    );
-                    if let Some((camera_movement, rot_x, rot_y)) = maybie {
-                        let rot = Rot::new(rot_x, rot_y, Rad(0.0));
-                        let (view, rot) = show.update(camera_movement, rot);
-                        trace!("{:?} && {:?}", view, rot);
-                    }
-                },
-                _ => (),
             },
             _ => (),
-        });
-
-        let frame = swap_chain.get_next_texture();
-        show.present_frame(&frame, &mut device);
-    }
-    
-    Ok(())
+        },
+        event::Event::EventsCleared => {
+            let frame = swap_chain.get_next_texture();
+            show.present_frame(&frame, &mut device);
+        },
+        _ => (),
+    });
 }

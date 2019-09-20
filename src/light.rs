@@ -51,7 +51,7 @@ impl Light {
         LightRaw {
             proj: *mx_view_proj.as_ref(),
             pos: [self.pos.x, self.pos.y, self.pos.z, 1.0],
-            colour: [self.colour.r, self.colour.g, self.colour.b, 1.0],
+            colour: [self.colour.r as f32, self.colour.g as f32, self.colour.b as f32, 1.0],
         }
     }
 }
