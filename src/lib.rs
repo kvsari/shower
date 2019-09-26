@@ -2,7 +2,6 @@
 //!
 //! Render various Goldberg polyhedrons.
 
-pub mod geop;
 /*pub mod shape;*/
 pub mod input;
 pub mod scene;

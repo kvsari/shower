@@ -22,6 +22,8 @@ num-traits = "0.2.8"
 objekt = "0.1.2"
 raw-window-handle = "0.1.2"
 
+gromit = { git = "https://github.com/kvsari/gromit.git", branch = "master", version = "0.1.0" }
+
 [dev-dependencies]
 dotenv = "0.14.1"
 env_logger = "0.7.0"

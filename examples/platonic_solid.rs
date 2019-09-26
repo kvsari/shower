@@ -44,19 +44,19 @@ macro_rules! platonic {
                 let (vertices, index) = $function(self.side_len, self.colour);
                 let vertices = vertices
                     .into_iter()
-                    .map(|v| scene::Vertex::new(
+                    .map(|v| gromit::Vertex::new(
                         [v.position.x, v.position.y, v.position.z],
                         [v.normal.x, v.normal.y, v.normal.z],
                         v.colour
                     ))
-                    .collect::<Vec<scene::Vertex>>();
+                    .collect::<Vec<gromit::Vertex>>();
                 
                 scene::Cached::new(&vertices, &index)
             }
         }
 
-        impl scene::Geometry for $name {
-            fn geometry(&self) -> (Vec<scene::Vertex>, Vec<u16>) {
+        impl gromit::Geometry for $name {
+            fn geometry(&self) -> (Vec<gromit::Vertex>, Vec<u16>) {
                 self.generate()
                     .geometry()
             }

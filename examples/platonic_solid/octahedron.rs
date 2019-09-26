@@ -3,7 +3,7 @@ use std::ops::Neg;
 
 use cgmath::Point3;
 
-use shower::geop::triangle_normal;
+use gromit::geop::triangle_normal;
 
 use super::Vertex;
 
