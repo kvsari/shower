@@ -3,8 +3,8 @@ use std::ops::Neg;
 
 use cgmath::Point3;
 
-//use crate::polyhedron::{Polyhedron, VtFc};
-use crate::geop::triangle_normal;
+use shower::geop::triangle_normal;
+
 use super::Vertex;
 
 /// Raw tetrahedron generation.
@@ -72,32 +72,3 @@ pub (in crate::platonic_solid) fn tetrahedron(
 
     (vertices, index)
 }
-
-/*
-pub (in crate::platonic_solid) fn tetrahedron2(len: f64) -> Polyhedron<VtFc> {
-    let cc = Point3::new(0.0, 0.0, 0.0);
-
-    // Circumscribed sphere radius.
-    let radius = 6f64.sqrt() / 4f64 * len;
-
-    // Get points using the unit sphere and multiply by the radius of circumscribing sphere.
-    let v1 = (8f64 / 9f64).sqrt() * radius;
-    let v2 = -1f64 / 3f64 * radius;
-    let v3 = (2f64 / 3f64).sqrt() * radius;
-    let v4 = (2f64 / 9f64).sqrt() * radius;
-
-    let vertices: [Point3<f64>; 4] = [
-        Point3::new(v1, 0f64, v2),
-        Point3::new(v4.neg(), v3, v2),
-        Point3::new(v4.neg(), v3.neg(), v2),
-        Point3::new(0f64, 0f64, radius),
-    ];
-
-    let t1 = [0, 2, 1];
-    let t2 = [0, 3, 2];
-    let t3 = [2, 3, 1];
-    let t4 = [0, 1, 3];
-
-    Polyhedron::new(cc, radius, &vertices, &[&t1, &t2, &t3, &t4])
-}
-*/

@@ -2,8 +2,7 @@
 
 use cgmath::{Point3, Vector3, BaseFloat};
 
-//use crate::polyhedron::{Polyhedron, VtFc, Seed, SeedSolid};
-use crate::scene;
+use shower::scene;
 
 mod tetrahedron;
 mod cube;
@@ -20,6 +19,7 @@ struct Vertex<S: BaseFloat> {
 }
 
 impl<S: BaseFloat> Vertex<S> {
+    #[allow(dead_code)]
     fn new(position: Point3<S>, normal: Vector3<S>, colour: [f32; 3]) -> Self {
         Vertex { position, normal, colour }
     }
@@ -27,6 +27,7 @@ impl<S: BaseFloat> Vertex<S> {
 
 macro_rules! platonic {
     ($name:ident, $function:expr) => {
+        #[allow(dead_code)]
         #[derive(Debug, Copy, Clone)]
         pub struct $name {
             side_len: f32,
@@ -34,6 +35,7 @@ macro_rules! platonic {
         }
 
         impl $name {
+            #[allow(dead_code)]
             pub fn new(side_len: f32, colour: [f32; 3]) -> Self {
                 $name { side_len, colour }
             }
@@ -68,39 +70,6 @@ platonic!(Octahedron, octahedron::octahedron);
 platonic!(Dodecahedron, dodecahedron::dodecahedron);
 platonic!(Icosahedron, icosahedron::icosahedron);
 
-/*
-macro_rules! platonic2 {
-    ($name:ident, $function:expr, $seed_solid:expr) => {
-        #[derive(Debug, Copy, Clone)]
-        pub struct $name {
-            side_len: f64,
-        }
-
-        impl $name {
-            pub fn new(side_len: f64) -> Self {
-                $name { side_len }
-            }
-
-            pub fn generate(&self) -> Polyhedron<VtFc> {
-                $function(self.side_len)
-            }
-        }
-
-        impl Seed for $name {
-            fn solid(&self) -> SeedSolid {
-                $seed_solid
-            }
-            
-            fn polyhedron(&self) -> Polyhedron<VtFc> {
-                self.generate()
-            }
-        }
-    }
-}
-
-platonic2!(Tetrahedron2, tetrahedron::tetrahedron2, SeedSolid::Tetrahedron);
-platonic2!(Cube2, cube::cube2, SeedSolid::Cube);
-platonic2!(Octahedron2, octahedron::octahedron2, SeedSolid::Octahedron);
-platonic2!(Dodecahedron2, dodecahedron::dodecahedron2, SeedSolid::Dodecahedron);
-platonic2!(Icosahedron2, icosahedron::icosahedron2, SeedSolid::Icosahedron);
-*/
+// Make module stand alone and avoid listing.
+#[allow(dead_code)]
+fn main() { }

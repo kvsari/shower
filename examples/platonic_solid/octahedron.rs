@@ -3,8 +3,8 @@ use std::ops::Neg;
 
 use cgmath::Point3;
 
-//use crate::polyhedron::{Polyhedron, VtFc};
-use crate::geop::triangle_normal;
+use shower::geop::triangle_normal;
+
 use super::Vertex;
 
 pub (in crate::platonic_solid) fn octahedron(
@@ -92,38 +92,3 @@ pub (in crate::platonic_solid) fn octahedron(
 
     (vertexes, indexes)
 }
-
-/*
-pub (in crate::platonic_solid) fn octahedron2(len: f64) -> Polyhedron<VtFc> {
-    let cc = Point3::new(0.0, 0.0, 0.0);
-
-    // Get the circumscribed sphere radius. This is our magnitude if all the vertices
-    // are to be vectors from origin.
-    let radius = 2f64.sqrt() /  2f64 * len;
-
-    // Build our square aligned on the coordinate axes.
-    let p_top   = Point3::new(0f64, radius, 0f64);
-    let p_right = Point3::new(radius, 0f64, 0f64);
-    let p_left  = Point3::new(radius.neg(), 0f64, 0f64);
-    let p_bot   = Point3::new(0f64, radius.neg(), 0f64);
-
-    // Z points
-    let p_far  = Point3::new(0f64, 0f64, radius.neg());
-    let p_near = Point3::new(0f64, 0f64, radius);
-
-    let vertices: [Point3<f64>; 6] = [
-        p_top, p_right, p_left, p_bot, p_far, p_near,
-    ];
-
-    let t1 = [0, 1, 4];
-    let t2 = [2, 0, 4];
-    let t3 = [3, 2, 4];
-    let t4 = [1, 3, 4];
-    let t5 = [1, 0, 5];
-    let t6 = [0, 2, 5];
-    let t7 = [2, 3, 5];
-    let t8 = [3, 1, 5];
-
-    Polyhedron::new(cc, radius, &vertices, &[&t1, &t2, &t3, &t4, &t5, &t6, &t7, &t8])
-}
-*/

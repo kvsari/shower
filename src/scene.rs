@@ -292,7 +292,7 @@ impl<T: Geometry> Scene<Prepare<T>> {
             }),
             rasterization_state: Some(wgpu::RasterizationStateDescriptor {
                 front_face: wgpu::FrontFace::Cw,
-                cull_mode: wgpu::CullMode::Front,
+                cull_mode: wgpu::CullMode::Back,
                 depth_bias: 2,
                 depth_bias_slope_scale: 2.0,
                 depth_bias_clamp: 0.0,

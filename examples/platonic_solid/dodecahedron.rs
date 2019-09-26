@@ -2,10 +2,9 @@
 use std::ops::Neg;
 
 use cgmath::Point3;
-use cgmath::prelude::*;
 
-//use crate::polyhedron::{Polyhedron, VtFc};
-use crate::geop::{triangle_normal, golden_ratio};
+use shower::geop::{triangle_normal, golden_ratio};
+
 use super::Vertex;
 
 pub (in crate::platonic_solid) fn dodecahedron(
@@ -197,105 +196,3 @@ pub (in crate::platonic_solid) fn dodecahedron(
 
     (vertexes, indexes)
 }
-
-/*
-pub (in crate::platonic_solid) fn dodecahedron2(len: f64) -> Polyhedron<VtFc> {
-    let cc = Point3::new(0.0, 0.0, 0.0);
-
-    // Halve length to get started. We are centering on (0, 0, 0).
-    let len = len / 2f64;
-
-    // Get the golden ratio
-    let g = golden_ratio();
-
-    // Compute the vertices.
-
-    // The cube is the line crossing the two sides of a pentagon. Thus it is the `len * g`.
-    let cl = len * g;
-    // Get the cube first. p/n means positive of negative `cl` on the x,y and z.    
-    let c_ppp = Point3::new(cl, cl, cl);
-    let c_npp = Point3::new(cl.neg(), cl, cl);
-    let c_nnp = Point3::new(cl.neg(), cl.neg(), cl);
-    let c_pnp = Point3::new(cl, cl.neg(), cl);
-    let c_ppn = Point3::new(cl, cl, cl.neg());
-    let c_npn = Point3::new(cl.neg(), cl, cl.neg());
-    let c_nnn = Point3::new(cl.neg(), cl.neg(), cl.neg());
-    let c_pnn = Point3::new(cl, cl.neg(), cl.neg());
-
-    // Now we get our rectangles using the golden ratio we prepared earlier. p/n again means
-    // positive or negative values but this time the coordinates are denoted in the name.
-
-    // The long edges of the rectangle are the len * g * g or cl * g.
-    let s = len;
-    let l = cl * g;
-
-    // Rectangle that lies on the x y plane.
-    let r_xy_pp = Point3::new(l, s, 0f64);
-    let r_xy_pn = Point3::new(l, s.neg(), 0f64);
-    let r_xy_nn = Point3::new(l.neg(), s.neg(), 0f64);
-    let r_xy_np = Point3::new(l.neg(), s, 0f64);
-
-    // Rectangle that lies on the x z plane.
-    let r_xz_pp = Point3::new(s, 0f64, l);
-    let r_xz_pn = Point3::new(s, 0f64, l.neg());
-    let r_xz_nn = Point3::new(s.neg(), 0f64, l.neg());
-    let r_xz_np = Point3::new(s.neg(), 0f64, l);
-
-    // Rectangle that lies on the y z plane.
-    let r_yz_pp = Point3::new(0f64, l, s);
-    let r_yz_pn = Point3::new(0f64, l, s.neg());
-    let r_yz_nn = Point3::new(0f64, l.neg(), s.neg());
-    let r_yz_np = Point3::new(0f64, l.neg(), s);
-
-    // Get one of the points and as a vector, get the magnitude. This becomes the
-    // radius of the circumscribing sphere.
-    let radius = r_xy_pp
-        .clone()
-        .to_homogeneous()
-        .truncate()
-        .magnitude();
-
-    let vertices: [Point3<f64>; 20] = [
-        c_ppp,    //  0
-        c_npp,    //  1
-        c_nnp,    //  2
-        c_pnp,    //  3
-        c_ppn,    //  4
-        c_npn,    //  5
-        c_nnn,    //  6
-        c_pnn,    //  7
-        r_xy_pp,  //  8
-        r_xy_pn,  //  9
-        r_xy_nn,  // 10
-        r_xy_np,  // 11
-        r_xz_pp,  // 12
-        r_xz_pn,  // 13
-        r_xz_nn,  // 14
-        r_xz_np,  // 15
-        r_yz_pp,  // 16
-        r_yz_pn,  // 17
-        r_yz_nn,  // 18
-        r_yz_np,  // 19
-    ];
-
-    let p1  = [15, 2, 19, 3, 12];
-    let p2  = [19, 2, 10, 6, 18];
-    let p3  = [18, 7, 9, 3, 19];
-    let p4  = [13, 7, 18, 6, 14];
-    let p5  = [10, 2, 15, 1, 11];
-    let p6  = [8, 0, 12, 3, 9];
-    let p7  = [11, 5, 14, 6, 10];
-    let p8  = [9, 7, 13, 4, 8];
-    let p9  = [12, 0, 16, 1, 15];
-    let p10 = [14, 5, 17, 4, 13];
-    let p11 = [16, 0, 8, 4, 17];
-    let p12 = [17, 5, 11, 1, 16];
-
-    Polyhedron::new(
-        cc,
-        radius,
-        &vertices,
-        &[&p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10, &p11, &p12],
-    )
-}
-*/

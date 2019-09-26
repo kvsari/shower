@@ -2,10 +2,9 @@
 use std::ops::Neg;
 
 use cgmath::Point3;
-use cgmath::prelude::*;
 
-//use crate::polyhedron::{Polyhedron, VtFc};
-use crate::geop::{triangle_normal, golden_ratio};
+use shower::geop::{triangle_normal, golden_ratio};
+
 use super::Vertex;
 
 /// Possibly broken if the len is anything other that 1.0.
@@ -189,108 +188,3 @@ pub (in crate::platonic_solid) fn icosahedron(
 
     (vertexes, indexes)
 }
-
-/*
-pub (in crate::platonic_solid) fn icosahedron2(len: f64) -> Polyhedron<VtFc> {
-    let cc = Point3::new(0.0, 0.0, 0.0);
-
-    // Long side of the golden rectangle.
-    let g_len = len * golden_ratio();
-
-    // Now construct three orthogonal golden rectangles centered on (0, 0, 0).
-    let g_mid = g_len / 2f64;
-
-    // Short length of the golden rectangle. Since we halved `g_len`, must halve `len` too.
-    let h_len = len / 2f64;
-
-    // Rect 1 along X Y.
-    let r_xy_tl = Point3::new(g_mid.neg(), h_len, 0f64);
-    let r_xy_tr = Point3::new(g_mid, h_len, 0f64);
-    let r_xy_br = Point3::new(g_mid, h_len.neg(), 0f64);
-    let r_xy_bl = Point3::new(g_mid.neg(), h_len.neg(), 0f64);
-
-    // Rect 2 along X Z
-    let r_xz_tl = Point3::new(h_len, 0f64, g_mid.neg());
-    let r_xz_tr = Point3::new(h_len, 0f64, g_mid);
-    let r_xz_br = Point3::new(h_len.neg(), 0f64, g_mid);
-    let r_xz_bl = Point3::new(h_len.neg(), 0f64, g_mid.neg());
-
-    // Rect 3 along Y Z
-    let r_yz_tl = Point3::new(0f64, g_mid.neg(), h_len);
-    let r_yz_tr = Point3::new(0f64, g_mid, h_len);
-    let r_yz_br = Point3::new(0f64, g_mid, h_len.neg());
-    let r_yz_bl = Point3::new(0f64, g_mid.neg(), h_len.neg());
-
-    // Get one of the points and as a vector, get the magnitude. This becomes the
-    // radius of the circumscribing sphere.
-    let radius = r_xy_tl
-        .clone()
-        .to_homogeneous()
-        .truncate()
-        .magnitude();
-
-    let vertices: [Point3<f64>; 12] = [
-        r_xy_tl, //  0
-        r_xy_tr, //  1
-        r_xy_br, //  2
-        r_xy_bl, //  3
-        r_xz_tl, //  4
-        r_xz_tr, //  5
-        r_xz_br, //  6
-        r_xz_bl, //  7
-        r_yz_tl, //  8
-        r_yz_tr, //  9
-        r_yz_br, // 10
-        r_yz_bl, // 11
-    ];
-
-    let t1  = [10, 0, 9];
-    let t2  = [0, 7, 3];
-    let t3  = [0, 10, 7];
-    let t4  = [6, 0, 3];
-    let t5  = [9, 0, 6];
-    let t6  = [3, 7, 11];
-    let t7  = [3, 11, 8];
-    let t8  = [3, 8, 6];
-    let t9  = [9, 6, 5];
-    let t10 = [1, 9, 5];
-    let t11 = [9, 1, 10];
-    let t12 = [5, 8, 2];
-    let t13 = [2, 8, 11];
-    let t14 = [2, 11, 4];
-    let t15 = [1, 5, 2];
-    let t16 = [4, 1, 2];
-    let t17 = [4, 11, 7];
-    let t18 = [7, 10, 4];
-    let t19 = [10, 1, 4];
-    let t20 = [6, 8, 5];
-
-    Polyhedron::new(
-        cc,
-        radius,
-        &vertices,
-        &[
-            &t1,
-            &t2,
-            &t3,
-            &t4,
-            &t5,
-            &t6,
-            &t7,
-            &t8,
-            &t9,
-            &t10,
-            &t11,
-            &t12,
-            &t13,
-            &t14,
-            &t15,
-            &t16,
-            &t17,
-            &t18,
-            &t19,
-            &t20,
-        ]
-    )
-}
-*/
