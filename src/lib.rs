@@ -1,6 +1,4 @@
-//! # Polyorb
-//!
-//! Render various Goldberg polyhedrons.
+//! Render simple scenes.
 
 /*pub mod shape;*/
 pub mod input;
