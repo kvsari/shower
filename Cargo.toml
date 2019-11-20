@@ -10,21 +10,21 @@ edition = "2018"
 default = ["wgpu/vulkan"]
 
 [dependencies]
-wgpu = "0.3.0"
+wgpu = "0.4.0"
 log = "0.4.8"
-glsl-to-spirv = "0.1.7"
+#glsl-to-spirv = "0.1.7"
 cgmath = "0.17"
 shaderc = "0.6.1"
 enum-map = "0.6.0"
-winit = "0.20.0-alpha3"
+winit = "0.20.0-alpha4"
 derive-getters = "0.1.0"
-num-traits = "0.2.8"
+num-traits = "0.2.9"
 objekt = "0.1.2"
-raw-window-handle = "0.1.0"
+raw-window-handle = "0.3.1"
 
 #gromit = { git = "https://github.com/kvsari/gromit.git", branch = "master", version = "0.1.0" }
 gromit = { git = "https://github.com/kvsari/gromit.git", branch = "develop" }
 
 [dev-dependencies]
-dotenv = "0.14.1"
-env_logger = "0.7.0"
+dotenv = "0.15.0"
+env_logger = "0.7.1"

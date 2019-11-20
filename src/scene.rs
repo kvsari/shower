@@ -116,12 +116,11 @@ impl Scene<Lights> {
 
 impl<T: Geometry> Scene<Prepare<T>> {
     pub fn prepare(
-        &self, desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device,
-    ) -> Scene<Ready> {
-        let cmd_encoder = device
-            .create_command_encoder(
-                &wgpu::CommandEncoderDescriptor { todo: 0 }
-            );
+        &self, desc: &wgpu::SwapChainDescriptor, device: &wgpu::Device,
+    ) -> (Scene<Ready>, wgpu::CommandBuffer) {
+        let cmd_encoder = device.create_command_encoder(
+            &wgpu::CommandEncoderDescriptor { todo: 0 }
+        );
         
         let m_vert = device.create_shader_module(&self.state.vert);
         let m_frag = device.create_shader_module(&self.state.frag);
@@ -156,11 +155,10 @@ impl<T: Geometry> Scene<Prepare<T>> {
             .fill_from_slice(&index);
 
         let light_buf_size = (MAX_LIGHTS * LightRaw::sizeof()) as u64;
-        let light_buf_builder = device
-            .create_buffer_mapped(
-                light_buf_size as usize,
-                wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
-            );
+        let light_buf_builder = device.create_buffer_mapped(
+            light_buf_size as usize,
+            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+        );
         
         self.state.lights
             .iter()
@@ -314,8 +312,8 @@ impl<T: Geometry> Scene<Prepare<T>> {
         
         let cmd_buf = cmd_encoder.finish();
         
-        device.get_queue()
-            .submit(&[cmd_buf]);
+        //device.get_queue()
+        //    .submit(&[cmd_buf]);
 
         let index_len = index.len();
         
@@ -331,7 +329,7 @@ impl<T: Geometry> Scene<Prepare<T>> {
             pipeline,
         };
 
-        Scene { state: ready }
+        (Scene { state: ready }, cmd_buf)
     }
 }
 
@@ -341,8 +339,8 @@ impl Renderable for Scene<Ready> {
         projection: &Matrix4<f32>,
         rotation: &Matrix4<f32>,
         frame: &wgpu::SwapChainOutput,
-        device: &mut wgpu::Device,
-    ) {
+        device: &wgpu::Device,
+    ) -> wgpu::CommandBuffer {
         let mut encoder = device.create_command_encoder(
             &wgpu::CommandEncoderDescriptor { todo: 0 }
         );
@@ -396,7 +394,7 @@ impl Renderable for Scene<Ready> {
             rpass.draw_indexed(0..self.state.index_len as u32, 0, 0..1);
         }
 
-        device.get_queue().submit(&[encoder.finish()]);
+        encoder.finish()
     }
 }
 
@@ -404,8 +402,8 @@ impl<T: Geometry> Initializable for Scene<Prepare<T>> {
     type Ready = Scene<Ready>;
     
     fn init(
-        self, desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device
-    ) -> Self::Ready {
+        self, desc: &wgpu::SwapChainDescriptor, device: &wgpu::Device
+    ) -> (Self::Ready, wgpu::CommandBuffer) {
         self.prepare(desc, device)
     }
 }

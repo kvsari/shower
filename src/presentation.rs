@@ -5,7 +5,6 @@ use cgmath::{Vector3, Rad, Matrix4, Point3, Deg};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::event;
 //use raw_window_handle::HasRawWindowHandle;
-use raw_window_handle::HasRawWindowHandle;
 
 use crate::input;
 
@@ -42,8 +41,8 @@ pub trait Renderable {
         projection: &Matrix4<f32>,
         rotation: &Matrix4<f32>,
         frame: &wgpu::SwapChainOutput,
-        device: &mut wgpu::Device,
-    );
+        device: &wgpu::Device,
+    ) -> wgpu::CommandBuffer;
 }
 
 /// All types that want to be rendered must be convertible via this trait into a
@@ -53,13 +52,15 @@ pub trait Initializable {
     type Ready;
     
     fn init(
-        self, desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device
-    ) -> Self::Ready;
+        self, desc: &wgpu::SwapChainDescriptor, device: &wgpu::Device
+    ) -> (Self::Ready, wgpu::CommandBuffer);
 }
 
 trait Presentation {
     fn update(&mut self, movement: Vector3<f32>, rot: Rot) -> (&View<f32>, &Rot);    
-    fn present_frame(&mut self, frame: &wgpu::SwapChainOutput, device: &mut wgpu::Device);
+    fn present_frame(
+        &mut self, frame: &wgpu::SwapChainOutput, device: &wgpu::Device
+    ) -> wgpu::CommandBuffer;
 }
 
 /// Taken heavily from the examples in wgpu crate. I have no idea otherwise how to use.
@@ -77,15 +78,17 @@ where T: Initializable,
         .to_physical(hidpi_factor);
     let w_width = w_size.width.round() as f32;
     let w_height = w_size.height.round() as f32;
-    let instance = wgpu::Instance::new();
-    let surface = instance.create_surface(window.raw_window_handle());
+    //let instance = wgpu::Instance::new();
+    //let surface = instance.create_surface(window.raw_window_handle());
+    let surface = wgpu::Surface::create(&window);
 
-    info!("Initializing the renderer.");    
-    let adapter = instance.request_adapter(&wgpu::RequestAdapterOptions {
+    info!("Initialize the renderer. Use Vulkan on linux, Metal on OSX or DX12 on Windows.");
+    let adapter = wgpu::Adapter::request(&wgpu::RequestAdapterOptions {
         power_preference: wgpu::PowerPreference::LowPower,
-    });
+        backends: wgpu::BackendBit::PRIMARY,
+    }).ok_or("No accelerated backend available! Must have Vulkan, Metal or DX12.")?;
     
-    let mut device = adapter.request_device(&wgpu::DeviceDescriptor {
+    let (device, mut queue) = adapter.request_device(&wgpu::DeviceDescriptor {
         extensions: wgpu::Extensions {
             anisotropic_filtering: false,
         },
@@ -112,7 +115,9 @@ where T: Initializable,
     let mut swap_chain = device.create_swap_chain(&surface, &desc);
 
     info!("Initializing the scene.");
-    let mut show = show::Show::new(scene.init(&desc, &mut device), camera);
+    let (ready, cmd_buffer) = scene.init(&desc, &device);
+    queue.submit(&[cmd_buffer]);
+    let mut show = show::Show::new(ready, camera);
 
     info!("Entering event loop.");
     event_loop.run(move |event, _, control_flow| match event {
@@ -142,7 +147,8 @@ where T: Initializable,
         },
         event::Event::EventsCleared => {
             let frame = swap_chain.get_next_texture();
-            show.present_frame(&frame, &mut device);
+            let cmd_buf = show.present_frame(&frame, &device);
+            queue.submit(&[cmd_buf]);
         },
         _ => (),
     });

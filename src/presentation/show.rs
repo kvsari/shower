@@ -31,12 +31,14 @@ impl<T: Renderable> Presentation for Show<T> {
         (self.camera.move_camera(movement), &self.rotation)
     }
     
-    fn present_frame(&mut self, frame: &wgpu::SwapChainOutput, device: &mut wgpu::Device) {
+    fn present_frame(
+        &mut self, frame: &wgpu::SwapChainOutput, device: &wgpu::Device
+    ) -> wgpu::CommandBuffer {
         self.scene.render(
             &self.camera.projection(),
             &Matrix4::from(Euler::new(self.rotation.x, self.rotation.y, self.rotation.z)),
             frame,
             device,
-        );
+        )
     }
 }
