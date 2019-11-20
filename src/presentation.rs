@@ -4,7 +4,6 @@ use log::{info, trace};
 use cgmath::{Vector3, Rad, Matrix4, Point3, Deg};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::event;
-//use raw_window_handle::HasRawWindowHandle;
 
 use crate::input;
 
@@ -78,8 +77,6 @@ where T: Initializable,
         .to_physical(hidpi_factor);
     let w_width = w_size.width.round() as f32;
     let w_height = w_size.height.round() as f32;
-    //let instance = wgpu::Instance::new();
-    //let surface = instance.create_surface(window.raw_window_handle());
     let surface = wgpu::Surface::create(&window);
 
     info!("Initialize the renderer. Use Vulkan on linux, Metal on OSX or DX12 on Windows.");

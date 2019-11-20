@@ -4,8 +4,7 @@ use std::io;
 use num_traits::identities::Zero;
 use cgmath::Matrix4;
 
-use gromit::{Geometry, Vertex};
-
+use crate::gromit::{Geometry, Vertex};
 use crate::shader::CompiledShaders;
 use crate::presentation::{Initializable, Renderable};
 use crate::light::{Light, LightRaw};

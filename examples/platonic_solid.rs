@@ -2,7 +2,7 @@
 
 use cgmath::{Point3, Vector3, BaseFloat};
 
-use shower::scene;
+use shower::{gromit, scene};
 
 mod tetrahedron;
 mod cube;
